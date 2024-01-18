@@ -28,17 +28,36 @@ import org.apache.kafka.connect.data.Struct;
 @Service
 public class DebeziumSourceEventListener {
   private final Logger logger = LoggerFactory.getLogger(DebeziumSourceEventListener.class);
-  private final Executor executor;
+  private final Executor executor = Executors.newFixedThreadPool(5);
   private final DebeziumEngine<RecordChangeEvent<SourceRecord>> engine;
 
+  private class MyChangeConsumer implements DebeziumEngine.ChangeConsumer<RecordChangeEvent<SourceRecord>> {
+    @Override
+    public void handleBatch(List<RecordChangeEvent<SourceRecord>> records, DebeziumEngine.RecordCommitter<RecordChangeEvent<SourceRecord>> committer) throws InterruptedException {
+       executor.execute(new HandleEvents(records));
+    }
+  }
+  public class HandleEvents implements Runnable {
+    public List<RecordChangeEvent<SourceRecord>> records;
+    public HandleEvents(List<RecordChangeEvent<SourceRecord>> records) {
+      this.records = records;
+    }
+    @Override
+    public void run() {
+      System.out.println(Thread.currentThread().getName() + " starting process");
+      records.forEach(record -> {
+        handleChangeEvent(record);
+      });
+      System.out.println(Thread.currentThread().getName() + " finished process");
+    }
+  }
   @Autowired
   private JdbcService jdbcService;
 
   public DebeziumSourceEventListener(Configuration customerConnector) {
-    this.executor = Executors.newSingleThreadExecutor();
     this.engine = DebeziumEngine.create(ChangeEventFormat.of(Connect.class))
       .using(customerConnector.asProperties())
-      .notifying(this::handleChangeEvent)
+      .notifying(new MyChangeConsumer())
       .build();
   }
   private void handleChangeEvent(RecordChangeEvent<SourceRecord> sourceRecordRecordChangeEvent) {
