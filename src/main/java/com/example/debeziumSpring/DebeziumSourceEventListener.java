@@ -33,7 +33,9 @@ public class DebeziumSourceEventListener {
 
   private class MyChangeConsumer implements DebeziumEngine.ChangeConsumer<RecordChangeEvent<SourceRecord>> {
     @Override
-    public void handleBatch(List<RecordChangeEvent<SourceRecord>> records, DebeziumEngine.RecordCommitter<RecordChangeEvent<SourceRecord>> committer) throws InterruptedException {
+    public void handleBatch(List<RecordChangeEvent<SourceRecord>> records,
+                            DebeziumEngine.RecordCommitter<RecordChangeEvent<SourceRecord>> committer)
+            throws InterruptedException {
        executor.execute(new HandleEvents(records));
     }
   }

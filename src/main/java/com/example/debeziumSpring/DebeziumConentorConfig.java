@@ -26,19 +26,11 @@ public class DebeziumConentorConfig {
       .with("database.user", "user1")
       .with("database.password", "24102003")
       .with("database.dbname", "kdbtest")
-      .with("topic.prefix", "postgresPrefixEnginedebe")
-      .with("include.schema.changes", "true")
-      .with("database.server.id", "10181")
+      .with("topic.prefix", "prefix24")
       .with("tasks.max", 1)
       .with("plugin.name", "pgoutput")
-      .with("slot.name", "myslottttt")
             .with("max.batch.size", 2)
-            .with("max.queue.size", 3)
-      .with("database.server.name", "customer-oracle-db-server")
-      .with("debezium.source.schema.history.internal", "io.debezium.storage.file.history.FileSchemaHistory")
-      .with("debezium.source.schema.history.internal.file.filename", "/tmp/dbezeHistory.dat")
-      .with("schema.history.internal.kafka.topic", "Schema-change.postgresdbengine")
-      .with("schema.history.internal.kafka.bootstrap.servers", "localhost:9092")
+            .with("max.queue.size", 4)
       .build();
   }
 }
